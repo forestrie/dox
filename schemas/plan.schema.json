@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/forestrie/dox/main/schemas/plan.schema.json",
+  "title": "Forestrie plan frontmatter",
+  "description": "Work in flight, kept in forestrie/work. A plan closes by distillation: it is complete only once its durable outcome has landed in canon and is listed in `outcome` (ADR-0071 sections 2, 3, 5, 6).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The filename stem (or directory name): plan-YYMM-NN-<slug>, or a frozen legacy plan-NNNN-<slug>.",
+      "type": "string",
+      "pattern": "^plan-[0-9]{4}(?:-[0-9]{2})?-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "status": {
+      "enum": ["draft", "active", "blocked", "complete", "abandoned"]
+    },
+    "repos": {
+      "description": "The forestrie repositories the work changes.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/home" },
+      "uniqueItems": true
+    },
+    "issues": {
+      "description": "The Linear issues the plan serves.",
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/issueRef" },
+      "uniqueItems": true
+    },
+    "outcome": {
+      "description": "The canon documents the close-out landed (ADRs, ARC or named-doc revisions, rules amendments), or `none: <reason>` when the plan produced nothing durable.",
+      "oneOf": [
+        { "$ref": "common.schema.json#/$defs/canonRefs", "minItems": 1 },
+        { "type": "string", "pattern": "^none: \\S.*$" }
+      ]
+    }
+  },
+  "required": ["id", "title", "status", "created", "updated", "repos", "issues"],
+  "allOf": [
+    { "$ref": "common.schema.json#/$defs/base" },
+    {
+      "if": { "properties": { "status": { "const": "complete" } }, "required": ["status"] },
+      "then": { "required": ["outcome"] }
+    }
+  ],
+  "unevaluatedProperties": false
+}

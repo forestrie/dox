@@ -1,0 +1,15 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv tool install git+https://github.com/robinbryce/dox@v0.1.0
+      - run: uv run --no-project --with 'jsonschema>=4.18' --with pyyaml python scripts/selftest.py

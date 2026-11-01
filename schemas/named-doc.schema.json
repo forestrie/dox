@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/forestrie/dox/main/schemas/named-doc.schema.json",
+  "title": "Forestrie named living document frontmatter",
+  "description": "The current state of an area, identified by slug and revised in place: architecture.md, area documents, runbooks, the protocol spec, product briefs (ADR-0071 sections 4-6).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The filename stem (or directory name), e.g. architecture, internal-api-versioning.",
+      "$ref": "common.schema.json#/$defs/slug"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "current",
+        "superseded"
+      ]
+    },
+    "owner": {
+      "description": "The GitHub user or team accountable for keeping the document true, e.g. robinbryce or forestrie/platform.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(?:/[A-Za-z0-9][A-Za-z0-9-]*)?$"
+    },
+    "review-by": {
+      "description": "Date by which the owner re-reads the document against the code. Tooling reports documents past this date as stale.",
+      "$ref": "common.schema.json#/$defs/date"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "status",
+    "created",
+    "updated",
+    "owner",
+    "review-by",
+    "decisions"
+  ],
+  "allOf": [
+    {
+      "$ref": "common.schema.json#/$defs/base"
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "superseded-by"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "superseded-by"
+          ]
+        }
+      }
+    }
+  ],
+  "unevaluatedProperties": false
+}

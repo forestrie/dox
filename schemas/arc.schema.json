@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/forestrie/dox/main/schemas/arc.schema.json",
+  "title": "Forestrie ARC frontmatter",
+  "description": "A numbered architectural design for an area. Revised freely while draft, stable once accepted, retired by absorption into a named living document once realised (ADR-0071 sections 4-6).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The filename stem (or directory name): arc-NNNN-<slug>.",
+      "type": "string",
+      "pattern": "^arc-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "accepted",
+        "absorbed",
+        "superseded",
+        "abandoned"
+      ]
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9-]*$"
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "status",
+    "created",
+    "updated"
+  ],
+  "allOf": [
+    {
+      "$ref": "common.schema.json#/$defs/base"
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "absorbed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "absorbed-into"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "superseded-by"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "superseded-by"
+          ]
+        }
+      }
+    }
+  ],
+  "unevaluatedProperties": false
+}

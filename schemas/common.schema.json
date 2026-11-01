@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/forestrie/dox/main/schemas/common.schema.json",
+  "title": "Forestrie docs: shared frontmatter definitions",
+  "description": "Field shapes shared by every document type (ADR-0071 section 6). Not a document schema on its own; the per-type schemas compose `base` and add their own fields.",
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "date": {
+      "description": "ISO 8601 calendar date. Tooling loads YAML with dates kept as strings.",
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "home": {
+      "description": "A forestrie repository name used as a citation namespace, e.g. devdocs, canopy, protocol.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]*$"
+    },
+    "canonRef": {
+      "description": "A reference to a canon document. One of: a citation (`ADR-0071`, `devdocs:ADR-0071`), a filename stem (`adr-0023-grant-format`, `canopy:arc-0004-sequencing`) for ids that collide, a repo-relative path (`architecture.md`, `protocol:rules/platform.md#p4`), or an https URL. A bare citation or path resolves inside the citing document's own home.",
+      "type": "string",
+      "anyOf": [
+        { "pattern": "^(?:[a-z0-9][a-z0-9.-]*:)?(?:ADR|ARC)-[0-9]{4}$" },
+        { "pattern": "^(?:[a-z0-9][a-z0-9.-]*:)?(?:adr|arc)-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        { "pattern": "^(?:[a-z0-9][a-z0-9.-]*:)?[A-Za-z0-9_][A-Za-z0-9_./-]*\\.md(?:#[a-z0-9-]+)?$" },
+        { "pattern": "^https://\\S+$" }
+      ]
+    },
+    "workRef": {
+      "description": "A plan or status snapshot id in forestrie/work: `plan-YYMM-NN-<slug>`, `status-YYMM-NN-<slug>`, or a frozen legacy `plan-NNNN-<slug>` / `status-NNNN-<slug>`.",
+      "type": "string",
+      "pattern": "^(?:plan|status)-[0-9]{4}(?:-[0-9]{2})?-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "issueRef": {
+      "description": "A Linear issue on team FOR.",
+      "type": "string",
+      "pattern": "^FOR-[0-9]+$"
+    },
+    "anyRef": {
+      "anyOf": [
+        { "$ref": "#/$defs/canonRef" },
+        { "$ref": "#/$defs/workRef" },
+        { "$ref": "#/$defs/issueRef" }
+      ]
+    },
+    "canonRefs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/canonRef" },
+      "uniqueItems": true
+    },
+    "base": {
+      "description": "Fields every document type accepts. Per-type schemas set `required` and the `id` and `status` shapes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "minLength": 1 },
+        "created": { "$ref": "#/$defs/date" },
+        "updated": { "$ref": "#/$defs/date" },
+        "supersedes": {
+          "description": "Documents this one replaces. Each of them carries `superseded-by` pointing back here.",
+          "$ref": "#/$defs/canonRefs",
+          "minItems": 1
+        },
+        "superseded-by": {
+          "description": "The one document that replaced this one.",
+          "$ref": "#/$defs/canonRef"
+        },
+        "absorbed-into": {
+          "description": "Named living documents or rules of the road that now carry this document's substance.",
+          "$ref": "#/$defs/canonRefs",
+          "minItems": 1
+        },
+        "decisions": {
+          "description": "In-force ADRs and ARCs that shaped this document.",
+          "$ref": "#/$defs/canonRefs"
+        },
+        "refs": {
+          "description": "Anything else this document depends on or serves: canon, work ids, FOR issues.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/anyRef" },
+          "uniqueItems": true
+        }
+      },
+      "patternProperties": {
+        "^x-[a-z0-9-]+$": {
+          "description": "Extension fields. Tooling ignores them; promote a field into the schema once two repos use it."
+        }
+      }
+    }
+  }
+}

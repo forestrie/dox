@@ -1,0 +1,192 @@
+# Forestrie's dox preset: the docs-layout specification
+# (forestrie-agents workflow/rules/docs-layout, devdocs ADR-0071) as
+# dox contract 1. Repositories pin a tag of this repo in .dox.toml.
+contract = "1.0"
+name = "Forestrie"
+schemas = "schemas"
+templates = "templates"
+exclude = [
+  ".claude/**", ".agents/**", ".cursor/**", ".github/**",
+  "**/node_modules/**", "**/vendor/**", "**/_deps/**",
+  "schemas/examples/**",
+  "**/SKILL.md",          # agent skills, not documents
+]
+
+[namespaces]
+canopy = "forestrie/canopy"
+arbor = "forestrie/arbor"
+univocity = "forestrie/univocity"
+univocity-tools = "forestrie/univocity-tools"
+mandate = "forestrie/mandate"
+forestrie-cli = "forestrie/forestrie-cli"
+thinker = "forestrie/thinker"
+forest-1 = "forestrie/forest-1"
+arbor-flux = "forestrie/arbor-flux"
+release-orchestrator = "forestrie/release-orchestrator"
+system-testing = "forestrie/system-testing"
+forestrie-cd-gitapp = "forestrie/forestrie-cd-gitapp"
+taskfiles = "forestrie/taskfiles"
+devdocs = "forestrie/devdocs"
+protocol = "forestrie/protocol"
+product = "forestrie/product"
+work = "forestrie/work"
+forestrie-agents = "forestrie/forestrie-agents"
+dox = "forestrie/dox"
+dotgithub = "forestrie/.github"
+ietf-126-demo = "forestrie/ietf-126-demo"
+go-merklelog = "forestrie/go-merklelog"
+go-univocity = "forestrie/go-univocity"
+go-sigv4 = "forestrie/go-sigv4"
+
+# ---- canon
+
+[types.adr]
+kind = "canon"
+schema = "adr.schema.json"
+identity = "id"
+id_format = "adr-{n:04}-{slug}"
+cite = "ADR-{n:04}"
+allocate = "namespace"
+dirs = ["adr"]
+retired_dir = "adr/retired"
+scan_dirs = ["decisions"]     # protocol, until its normalisation
+index = "README.md"
+template = "adr.md"
+[types.adr.status]
+field = "status"
+values = { discuss = "discussion", ready = "discussion", accepted = "in-force", rejected = "retired", superseded = "retired", deprecated = "retired" }
+[types.adr.links]
+supersedes = "replaces"
+superseded-by = "replaced-by"
+absorbed-into = "absorbed-into"
+amends = "cites"
+decisions = "cites"
+refs = "cites"
+
+[types.arc]
+kind = "canon"
+schema = "arc.schema.json"
+identity = "id"
+id_format = "arc-{n:04}-{slug}"
+cite = "ARC-{n:04}"
+allocate = "namespace"
+dirs = ["arc"]
+retired_dir = "arc/retired"
+scan_dirs = ["decisions"]
+index = "README.md"
+template = "arc.md"
+[types.arc.status]
+field = "status"
+values = { draft = "discussion", accepted = "in-force", absorbed = "retired", superseded = "retired", abandoned = "retired" }
+[types.arc.links]
+supersedes = "replaces"
+superseded-by = "replaced-by"
+absorbed-into = "absorbed-into"
+decisions = "cites"
+refs = "cites"
+
+[types.rules]
+kind = "canon"
+schema = "rules.schema.json"
+identity = "id"
+dirs = ["rules.md", "rules"]  # repo docs/rules.md; protocol rules/platform.md
+layout = "file"
+status = "none"
+template = "rules.md"
+[types.rules.links]
+decisions = "cites"
+refs = "cites"
+
+[types.named-doc]
+kind = "canon"
+schema = "named-doc.schema.json"
+identity = "id"
+fallback = true
+review_date = "review-by"
+template = "named-doc.md"
+[types.named-doc.status]
+field = "status"
+values = { draft = "discussion", current = "in-force", superseded = "retired" }
+[types.named-doc.links]
+supersedes = "replaces"
+superseded-by = "replaced-by"
+absorbed-into = "absorbed-into"
+decisions = "cites"
+refs = "cites"
+
+# ---- work (forestrie/work only)
+
+[types.plan]
+kind = "work"
+schema = "plan.schema.json"
+identity = "id"
+id_format = "plan-{yymm}-{n:02}-{slug}"
+id_legacy = ['^plan-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$']
+allocate = "month"
+dirs = ["plans"]
+archive_dir = "archive/{yymm}"
+template = "plan.md"
+template_dir = "plan-dir"
+[types.plan.status]
+field = "status"
+values = { draft = "discussion", active = "in-force", blocked = "in-force", complete = "closed", abandoned = "closed" }
+[types.plan.links]
+supersedes = "replaces"
+superseded-by = "replaced-by"
+outcome = "outcome"
+decisions = "cites"
+refs = "cites"
+
+[types.status]
+kind = "work"
+schema = "status.schema.json"
+identity = "id"
+id_format = "status-{yymm}-{n:02}-{slug}"
+id_legacy = ['^status-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$']
+allocate = "month"
+dirs = ["status"]
+archive_dir = "archive/{yymm}"
+template = "status.md"
+[types.status.status]
+field = "status"
+values = { draft = "discussion", active = "in-force", blocked = "in-force", complete = "closed", abandoned = "closed" }
+[types.status.links]
+plans = "cites"
+refs = "cites"
+
+# ---- refs and links
+
+[refs]
+separator = ":"
+external = [
+  { pattern = '^FOR-[0-9]+$', url = "https://linear.app/forestrie/issue/{0}" },
+  # Work ids resolve in forestrie/work; canon may list them in refs only.
+  { pattern = '^(?:plan|status)-[0-9]{4}(?:-[0-9]{2})?-[a-z0-9]+(?:-[a-z0-9]+)*$', url = "https://github.com/forestrie/work" },
+]
+
+[links]
+cross_repo = "https://github.com/{repo}/blob/{ref}/{path}"
+
+# ---- checks (ADR-0071 section 10)
+
+[severity]
+config = "error"
+schema = "error"
+id-unique = "error"
+links-local = "error"
+placement = "error"
+index-fresh = "error"
+no-work-ids = "error"
+no-plans-in-canon = "error"
+links-remote = "warn"         # ADR-0071 section 9: warn until every repo is normalised
+
+[checks.no-work-ids]
+patterns = [
+  { regex = '\bFOR-[0-9]+\b', what = "tracker id" },
+  { regex = '\bplan-[0-9]{4}\b', what = "plan id" },
+  { regex = '\bstatus-[0-9]{4}\b', what = "status id" },
+  { regex = '^\*\*(?:Status|Date):\*\*', what = "bold header (use frontmatter)" },
+]
+
+[checks.no-plans-in-canon]
+dirs = ["**/plans/**", "**/status/**"]

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/forestrie/dox/main/schemas/adr.schema.json",
+  "title": "Forestrie ADR frontmatter",
+  "description": "An architecture decision record: one decision, immutable once accepted except for `status`, `updated` and the typed link fields (ADR-0071 sections 4-6).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The filename stem (or directory name): adr-NNNN-<slug>, or adr-NNNN-sec-<slug> for a security-critical decision.",
+      "type": "string",
+      "pattern": "^adr-[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "status": {
+      "enum": [
+        "discuss",
+        "ready",
+        "accepted",
+        "rejected",
+        "superseded",
+        "deprecated"
+      ]
+    },
+    "categories": {
+      "description": "Areas the decision touches, upper case, e.g. [DOCS, PROCESS].",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9-]*$"
+      },
+      "uniqueItems": true
+    },
+    "amends": {
+      "description": "Accepted documents this decision changes in part without replacing them.",
+      "$ref": "common.schema.json#/$defs/canonRefs",
+      "minItems": 1
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "status",
+    "created",
+    "updated"
+  ],
+  "allOf": [
+    {
+      "$ref": "common.schema.json#/$defs/base"
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "superseded-by"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "superseded-by"
+          ]
+        }
+      }
+    }
+  ],
+  "unevaluatedProperties": false
+}

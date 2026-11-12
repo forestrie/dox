@@ -1,7 +1,7 @@
 # Forestrie's dox preset: the docs-layout specification
 # (forestrie-agents workflow/rules/docs-layout, devdocs ADR-0071) as
 # dox contract 1. Repositories pin a tag of this repo in .dox.toml.
-contract = "1.0"
+contract = "1.1"
 name = "Forestrie"
 schemas = "schemas"
 templates = "templates"
@@ -55,6 +55,8 @@ template = "adr.md"
 [types.adr.status]
 field = "status"
 values = { discuss = "discussion", ready = "discussion", accepted = "in-force", rejected = "retired", superseded = "retired", deprecated = "retired" }
+[types.adr.retire]
+by = "superseded"         # absorbed: an ADR keeps its status (docs-layout)
 [types.adr.links]
 supersedes = "replaces"
 superseded-by = "replaced-by"
@@ -78,6 +80,9 @@ template = "arc.md"
 [types.arc.status]
 field = "status"
 values = { draft = "discussion", accepted = "in-force", absorbed = "retired", superseded = "retired", abandoned = "retired" }
+[types.arc.retire]
+by = "superseded"
+absorbed = "absorbed"
 [types.arc.links]
 supersedes = "replaces"
 superseded-by = "replaced-by"
@@ -107,6 +112,8 @@ template = "named-doc.md"
 [types.named-doc.status]
 field = "status"
 values = { draft = "discussion", current = "in-force", superseded = "retired" }
+[types.named-doc.retire]
+by = "superseded"
 [types.named-doc.links]
 supersedes = "replaces"
 superseded-by = "replaced-by"
@@ -154,6 +161,21 @@ values = { draft = "discussion", active = "in-force", blocked = "in-force", comp
 plans = "cites"
 refs = "cites"
 
+# ---- rules of the road (ADR-0071 section 7)
+# One rule per `### <ID> — <imperative>` heading: P platform, C canopy,
+# A arbor, U univocity, T univocity-tools, M mandate, F forest-1,
+# FX arbor-flux. Each carries Why, a source link and Enforced-by.
+
+[rules]
+type = "rules"
+heading = '^### (?P<id>[A-Z]{1,2}[0-9]+) — (?P<text>.+)$'
+level = 3
+link = true
+fields = [
+  { name = "Why", regex = '\*\*Why:\*\*' },
+  { name = "Enforced-by", regex = '^\*\*Enforced-by:\*\* *(?:(?:hook|lint|test):[^\s,]+|review)(?:, *(?:(?:hook|lint|test):[^\s,]+|review))* *\.?$' },
+]
+
 # ---- refs and links
 
 [refs]
@@ -178,6 +200,8 @@ placement = "error"
 index-fresh = "error"
 no-work-ids = "error"
 no-plans-in-canon = "error"
+rules-shape = "error"
+digest-fresh = "error"
 links-remote = "warn"         # ADR-0071 section 9: warn until every repo is normalised
 
 [checks.no-work-ids]

@@ -29,7 +29,7 @@ baseline   = ".dox-baseline.json"
 Locally, `export DOX_SCHEMA_REPO=forestrie/dox` and run `dox lint`. In CI:
 
 ```yaml
-- uses: robinbryce/dox@v0.1.0
+- uses: robinbryce/dox@v0.3.0
   with:
     schema-repo: forestrie/dox
 ```
@@ -41,7 +41,7 @@ against your checkout, and tag a new version. A change reaches a
 repository only when that repository bumps `schema_ref`.
 
 ```bash
-uv tool install git+https://github.com/robinbryce/dox@v0.1.0
+uv tool install git+https://github.com/robinbryce/dox@v0.3.0
 uv run --no-project --with 'jsonschema>=4.18' --with pyyaml python scripts/selftest.py
 ```
 
